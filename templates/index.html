@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>评估项目</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background-color: #f0f2f5; padding: 1rem; }
+        .container { text-align: center; padding: 2rem; background-color: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 900px; }
+        h1 { color: #333; }
+        h2 { color: #555; border-top: 1px solid #eee; padding-top: 1.5rem; margin-top: 2rem; }
+        .task-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-top: 1.5rem; }
+        .task-links a, .action-button {
+            display: inline-block;
+            padding: 10px 24px;
+            font-size: 1.1em;
+            text-decoration: none;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+            cursor: pointer;
+            width: auto;
+        }
+        .main-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .action-button.start-button {
+            background-color: #28a745; 
+            font-weight: bold;
+        }
+        .action-button.start-button:hover { background-color: #218838; }
+        .action-button.settings-button { background-color: #6c757d; }
+        .action-button.settings-button:hover { background-color: #5a6268; }
+        .task-links { display: flex; flex-direction: column; gap: 0.75rem; }
+        .task-links a:hover { background-color: #0056b3; }
+        .task-links a.piano-task { background-color: #28a745; }
+        .task-links a.piano-task:hover { background-color: #218838; }
+        .task-links a.zoom-task { background-color: #fd7e14; }
+        .task-links a.zoom-task:hover { background-color: #e86a02; }
+        @media (min-width: 900px) {
+            .task-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>欢迎参加评估</h1>
+        <p>请点击下方‘开始评估’按钮启动测试。</p>
+        
+        <div class="main-actions">
+            <a href="/gallery?mode=fixed" class="action-button start-button">开始评估</a>
+            <a href="/settings" class="action-button settings-button">调节参数</a>
+        </div>
+        <div class="task-grid">
+            <div class="task-column">
+                <h2>任务A: 划动交互</h2>
+                <div class="task-links">
+                    <a href="/gallery?mode=fixed">模式1: 固定手势</a>
+                    <a href="/gallery?mode=selectable">模式2: 可选标准手势</a>
+                    <a href="/gallery?mode=custom_fixed">模式3: 自定义 (固定目标)</a>
+                    <a href="/gallery?mode=custom_smart">模式4: 自定义 (智能匹配目标)</a>
+                </div>
+            </div>
+            <div class="task-column">
+                <h2>任务B: 缩放交互</h2>
+                <div class="task-links">
+                    <a href="/zoom?action=in&mode=fixed" class="zoom-task">模式1: 固定手势</a>
+                    <a href="/zoom?action=in&mode=selectable" class="zoom-task">模式2: 可选标准手势</a>
+                    <a href="/zoom?action=in&mode=custom_fixed" class="zoom-task">模式3: 自定义 (固定目标)</a>
+                    <a href="/zoom?action=in&mode=custom_smart" class="zoom-task">模式4: 自定义 (智能匹配目标)</a>
+                </div>
+            </div>
+            <div class="task-column">
+                <h2>任务C: 点击交互</h2>
+                <div class="task-links">
+                    <a href="/piano?mode=fixed" class="piano-task">模式1: 固定手势</a>
+                    <a href="/piano?mode=selectable" class="piano-task">模式2: 可选标准手势</a>
+                    <a href="/piano?mode=custom_fixed" class="piano-task">模式3: 自定义 (固定目标)</a>
+                    <a href="/piano?mode=custom_smart" class="piano-task">模式4: 自定义 (智能匹配目标)</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

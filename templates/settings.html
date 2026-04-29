@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>参数调节</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background-color: #f0f2f5; padding: 1rem; }
+        .container { text-align: left; padding: 2rem; background-color: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
+        h1 { text-align: center; margin-top: 0; }
+        .setting { margin-bottom: 1.5rem; }
+        label { font-weight: bold; color: #333; display: block; margin-bottom: 0.5rem; }
+        input[type="range"] { width: 100%; cursor: pointer; }
+        span { color: #007bff; font-size: 1.1em; }
+        .buttons { display: flex; gap: 1rem; margin-top: 2rem; }
+        button, .home-link {
+            flex: 1;
+            padding: 12px 20px;
+            font-size: 1em;
+            text-decoration: none;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+            cursor: pointer;
+            text-align: center;
+        }
+        button:hover, .home-link:hover { background-color: #0056b3; }
+        .home-link { background-color: #6c757d; }
+        .home-link:hover { background-color: #5a6268; }
+        #save-feedback { text-align: center; color: #28a745; margin-top: 1rem; min-height: 1.2em; }
+    </style>
+</head>
+<body>
+    <div class="container">
+ <!--       <h1>调节参数</h1> -->
+
+        <div class="setting">
+    <label for="eps-slider">识别辅助强度 (Epsilon): <span id="eps-value">15</span></label>
+    <input type="range" id="eps-slider" min="1" max="20" value="15">
+    <small>调整系统在识别时帮忙的力度（数值越大越明显）。</small>
+</div>
+
+<div class="setting">
+    <label for="alpha-slider">辅助精确度 (Alpha): <span id="alpha-value">4</span></label>
+    <input type="range" id="alpha-slider" min="1" max="10" value="4">
+    <small>控制识别动作的严格程度（越高越挑剔）。</small>
+</div>
+
+<div class="setting">
+    <label for="steps-slider">迭代次数 (Steps): <span id="steps-value">3</span></label>
+    <input type="range" id="steps-slider" min="1" max="10" value="3">
+    <small>计算识别时的尝试次数（越多越稳但可能更慢）。</small>
+</div>
+
+<div class="setting">
+    <label for="speed-slider">识别速度等级: <span id="speed-value">3</span></label>
+    <input type="range" id="speed-slider" min="1" max="5" value="3">
+    <small>调整反应速度和稳定性的平衡。</small>
+</div>
+
+<div class="setting">
+    <label for="cooldown-slider">动作冷却时间 (毫秒): <span id="cooldown-value">700</span></label>
+    <input type="range" id="cooldown-slider" min="100" max="2000" step="50" value="700">
+    <small>两次动作之间的最短间隔（避免误触发）。</small>
+</div>
+
+        
+        <p id="save-feedback"></p>
+
+        <div class="buttons">
+            <a href="/" class="home-link">返回主页</a>
+            <button id="save-button">保存设置</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const epsSlider = document.getElementById('eps-slider');
+            const epsValue = document.getElementById('eps-value');
+            const alphaSlider = document.getElementById('alpha-slider');
+            const alphaValue = document.getElementById('alpha-value');
+            const stepsSlider = document.getElementById('steps-slider');
+            const stepsValue = document.getElementById('steps-value');
+            const speedSlider = document.getElementById('speed-slider');
+            const speedValue = document.getElementById('speed-value');
+            const cooldownSlider = document.getElementById('cooldown-slider');
+            const cooldownValue = document.getElementById('cooldown-value');
+            const saveButton = document.getElementById('save-button');
+            const saveFeedback = document.getElementById('save-feedback');
+
+            function loadSettings() {
+                const settings = JSON.parse(localStorage.getItem('attackSettings'));
+                if (settings) {
+                    epsSlider.value = settings.eps;
+                    epsValue.textContent = settings.eps;
+                    alphaSlider.value = settings.alpha;
+                    alphaValue.textContent = settings.alpha;
+                    stepsSlider.value = settings.steps;
+                    stepsValue.textContent = settings.steps;
+                    speedSlider.value = settings.speedLevel || 3;
+                    speedValue.textContent = settings.speedLevel || 3;
+                    cooldownSlider.value = settings.cooldownTime || 700;
+                    cooldownValue.textContent = settings.cooldownTime || 700;
+                }
+            }
+
+            epsSlider.addEventListener('input', () => epsValue.textContent = epsSlider.value);
+            alphaSlider.addEventListener('input', () => alphaValue.textContent = alphaSlider.value);
+            stepsSlider.addEventListener('input', () => stepsValue.textContent = stepsSlider.value);
+            speedSlider.addEventListener('input', () => speedValue.textContent = speedSlider.value);
+            cooldownSlider.addEventListener('input', () => cooldownValue.textContent = cooldownSlider.value);
+
+            saveButton.addEventListener('click', () => {
+                const settings = {
+                    eps: parseInt(epsSlider.value, 10),
+                    alpha: parseInt(alphaSlider.value, 10),
+                    steps: parseInt(stepsSlider.value, 10),
+                    speedLevel: parseInt(speedSlider.value, 10),
+                    cooldownTime: parseInt(cooldownSlider.value, 10)
+                };
+                localStorage.setItem('attackSettings', JSON.stringify(settings));
+                saveFeedback.textContent = '设置已保存！';
+                setTimeout(() => saveFeedback.textContent = '', 2000);
+            });
+
+            loadSettings();
+        });
+    </script>
+</body>
+</html>

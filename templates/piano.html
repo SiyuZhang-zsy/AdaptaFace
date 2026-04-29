@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任务C: 点击交互</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            padding: 1rem;
+            box-sizing: border-box;
+            background-color: #f0f2f5;
+        }
+
+        .container {
+            text-align: center;
+            padding: 0.75rem 1rem;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 700px;
+            margin-bottom: 0.75rem;
+            box-sizing: border-box;
+        }
+
+        h1, h2, h3 { color: #333; margin-top: 0; }
+
+        video {
+            width: 100%;
+            height: auto;
+            background-color: #000;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            transform: scaleX(-1);
+            margin-top: 1rem;
+        }
+
+        #webcam {
+            max-width: 300px;
+            width: 70%;
+            display: block;
+            margin: 0 auto;
+        }
+
+        #wizard-status {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #007bff;
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease-in-out;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            min-height: 1.5em;
+        }
+
+        #piano-container {
+            display: flex;
+            position: relative;
+            justify-content: center;
+            background: #333;
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 0.75rem;
+            margin-bottom: 0.75rem;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+        }
+
+        .key {
+            position: relative;
+            width: 14%;
+            max-width: 110px;
+            height: 34vw;
+            max-height: 320px;
+            min-height: 180px;
+            border: 1px solid #333;
+            background-color: white;
+            border-radius: 0 0 8px 8px;
+            box-shadow: inset 0 -5px 10px rgba(0,0,0,0.2);
+            transition: all 0.05s ease;
+            cursor: pointer;
+            color: #555;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 10px;
+            font-weight: bold;
+            box-sizing: border-box;
+        }
+
+        .key.black {
+            position: absolute;
+            width: 8%;
+            height: 20vw;
+            max-height: 180px;
+            min-height: 120px;
+            background: linear-gradient(45deg, #333, #000);
+            border: 2px solid #000;
+            border-radius: 0 0 6px 6px;
+            box-shadow: 0 5px 8px rgba(0,0,0,0.4);
+            z-index: 2;
+            color: #fff;
+        }
+
+        .key.black[data-note="C#4"] { left: 18%; }
+        .key.black[data-note="D#4"] { left: 32%; }
+        .key.black[data-note="F#4"] { left: 60%; }
+        .key.black[data-note="G#4"] { left: 74%; }
+
+        .key.highlight { background-color: #87CEFA !important; }
+        .key.pressed-correct { background-color: #90EE90 !important; transform: translateY(3px); }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            background-color: #28a745;
+            color: white;
+            transition: background-color 0.3s;
+            margin-top: 0.5rem;
+            width: 100%;
+        }
+
+        button:disabled { background-color: #aaa; cursor: not-allowed; }
+
+        .au-button {
+            background-color: #007bff;
+            padding: 8px 12px;
+            font-size: 14px;
+            width: auto;
+            flex-basis: calc(50% - 10px);
+            box-sizing: border-box;
+        }
+
+        .au-buttons-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .nav-buttons {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+            margin-top: 150px;
+            margin-bottom: 150px;
+        }
+
+        .nav-buttons a {
+            text-decoration: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            background-color: #6c757d;
+            color: white;
+            width: 90%;
+            max-width: 320px;
+            text-align: center;
+            box-sizing: border-box;
+            transition: background-color 0.3s;
+        }
+
+        #next-task-link {
+            background-color: #007bff;
+            font-weight: bold;
+        }
+
+        #next-task-link:hover { background-color: #0056b3; }
+
+        .hidden { display: none !important; }
+        .results { margin-top: 0.5rem; min-height: 20px; font-size: 0.9em; }
+        .results p { margin: 0.5rem 0; text-align: left; }
+        .results span { font-weight: bold; color: #007bff; }
+        .btn-stop { background-color: #dc3545 !important; }
+
+        #task-step h2, .gesture-display { text-align: left; }
+        #task-step h2 { margin-top: 5.25rem; }
+        .gesture-display { margin-top: 0; margin-bottom: 0.5rem; }
+        #task-status { margin-bottom: 0.75rem; }
+        .condition-box h3 { margin-bottom: 0.5rem; }
+
+        .test-area {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .condition-box { flex: 1; }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+        }
+
+        .countdown-active { animation: pulse 1s infinite; }
+
+        #feedback-step.container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 400px;
+        }
+
+        .feedback-form {
+            width: 90%;
+            max-width: 400px;
+            text-align: left;
+            margin: 0 auto;
+        }
+
+        .feedback-form h3 {
+            margin-top: 100px;
+            text-align: center;
+        }
+
+        .rating-group { margin-bottom: 1.5rem; }
+        .rating-group p { margin: 0 0 0.5rem 0; font-weight: bold; }
+
+        .rating-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9em;
+            color: #666;
+            padding: 0 5px;
+        }
+
+        .rating-options {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 0.5rem;
+        }
+
+        /* ===== 左右等高布局 ===== */
+        #task-and-preview-layout {
+            width: min(1900px, calc(100vw - 1rem));
+            display: grid;
+            grid-template-columns: minmax(980px, 2.7fr) minmax(430px, 1fr);
+            gap: 1rem;
+            align-items: stretch;
+            margin-bottom: 1rem;
+        }
+
+        #task-and-preview-layout.hidden {
+            display: none !important;
+        }
+
+        #task-and-preview-layout > #task-step.container {
+            max-width: none;
+            width: 100%;
+            height: 100%;
+            margin-bottom: 0;
+        }
+
+        /* ===== 右侧实时预览 ===== */
+        #debug-preview-panel {
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            background: rgba(255,255,255,0.96);
+            border: 1px solid #d9dee5;
+            border-radius: 16px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100%;
+        }
+
+        #debug-preview-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #333;
+            margin: 0 0 10px 0;
+            text-align: left;
+        }
+
+        .debug-preview-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            flex: 1;
+            align-content: stretch;
+        }
+
+        .debug-card {
+            background: #f8f9fb;
+            border-radius: 12px;
+            padding: 8px;
+            border: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .debug-card-label {
+            font-size: 12px;
+            color: #555;
+            margin-bottom: 6px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .debug-card img {
+            width: 100%;
+            height: 100%;
+            min-height: 180px;
+            aspect-ratio: 4 / 3;
+            object-fit: contain;
+            object-position: center;
+            border-radius: 8px;
+            background: #111;
+            display: block;
+        }
+
+        .debug-placeholder {
+            width: 100%;
+            min-height: 180px;
+            aspect-ratio: 4 / 3;
+            border-radius: 8px;
+            background: #eef1f4;
+            color: #7a7f87;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 6px;
+            box-sizing: border-box;
+        }
+
+        /* 隐藏旧的小视频窗，但保留识别逻辑 */
+        #task-video-feed {
+            position: absolute !important;
+            left: -9999px !important;
+            top: auto !important;
+            right: auto !important;
+            bottom: auto !important;
+            width: 1px !important;
+            height: 1px !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            border: 0 !important;
+            box-shadow: none !important;
+            transform: scaleX(-1);
+        }
+
+        @media (max-width: 1100px) {
+            #task-and-preview-layout {
+                grid-template-columns: 1fr;
+            }
+
+            #debug-preview-panel {
+                min-height: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="wizard-step" class="container"></div>
+
+    <div id="task-and-preview-layout" class="hidden">
+        <div id="task-step" class="container hidden">
+            <h2>任务C: 点击交互</h2>
+            <p class="gesture-display">您设置的动作是: <strong id="gesture-display-text"></strong></p>
+            <div id="piano-container">
+                <div class="key" data-note="C4">C</div>
+                <div class="key" data-note="D4">D</div>
+                <div class="key" data-note="E4">E</div>
+                <div class="key" data-note="F4">F</div>
+                <div class="key" data-note="G4">G</div>
+                <div class="key" data-note="A4">A</div>
+                <div class="key" data-note="B4">B</div>
+                <div class="key black" data-note="C#4">C#</div>
+                <div class="key black" data-note="D#4">D#</div>
+                <div class="key black" data-note="F#4">F#</div>
+                <div class="key black" data-note="G#4">G#</div>
+            </div>
+            <p id="task-status">请在下方选择一个条件开始测试。</p>
+            <div class="test-area">
+                <div class="condition-box">
+                    <button id="start-baseline-button" type="button">开始模型一测试</button>
+                    <div id="baseline-results" class="results"></div>
+                </div>
+                <div class="condition-box">
+                    <button id="start-adaptaface-button" type="button">开始模型二测试</button>
+                    <div id="adaptaface-results" class="results"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="debug-preview-panel">
+            <p id="debug-preview-title">实时预览</p>
+            <div class="debug-preview-grid">
+                <div class="debug-card">
+                    <div class="debug-card-label">原始画面</div>
+                    <img id="preview-image" alt="原始摄像头画面">
+                </div>
+                <div class="debug-card">
+                    <div class="debug-card-label">裁剪人脸</div>
+                    <img id="cropped-face-image" alt="裁剪后的人脸图像" class="hidden">
+                    <div id="cropped-face-placeholder" class="debug-placeholder">等待检测到人脸</div>
+                </div>
+                <div class="debug-card">
+                    <div class="debug-card-label">对抗后人脸</div>
+                    <img id="adv-face-image" alt="加入扰动后的对抗人脸图像" class="hidden">
+                    <div id="adv-face-placeholder" class="debug-placeholder">当前未应用扰动</div>
+                </div>
+                <div class="debug-card">
+                    <div class="debug-card-label">扰动可视化</div>
+                    <img id="perturbation-image" alt="扰动可视化图像" class="hidden">
+                    <div id="perturbation-placeholder" class="debug-placeholder">当前未生成扰动</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="feedback-step" class="container hidden">
+        <div class="feedback-form">
+            <h3 id="feedback-title">请对刚才的体验进行评分</h3>
+            <div class="rating-group">
+                <p>1. 您觉得刚才的操作轻松吗？</p>
+                <div class="rating-labels"><span>非常费力</span><span>非常轻松</span></div>
+                <div class="rating-options">
+                    <label><input type="radio" name="ease" value="1"> 1</label>
+                    <label><input type="radio" name="ease" value="2"> 2</label>
+                    <label><input type="radio" name="ease" value="3" checked> 3</label>
+                    <label><input type="radio" name="ease" value="4"> 4</label>
+                    <label><input type="radio" name="ease" value="5"> 5</label>
+                </div>
+            </div>
+            <div class="rating-group">
+                <p>2. 您觉得刚才的控制精准吗？</p>
+                <div class="rating-labels"><span>非常不准</span><span>非常精准</span></div>
+                <div class="rating-options">
+                    <label><input type="radio" name="accuracy" value="1"> 1</label>
+                    <label><input type="radio" name="accuracy" value="2"> 2</label>
+                    <label><input type="radio" name="accuracy" value="3" checked> 3</label>
+                    <label><input type="radio" name="accuracy" value="4"> 4</label>
+                    <label><input type="radio" name="accuracy" value="5"> 5</label>
+                </div>
+            </div>
+            <button id="submit-feedback-button" type="button">提交并继续</button>
+        </div>
+    </div>
+
+    <div id="nav-step" class="container hidden">
+        <div class="nav-buttons">
+            <a id="next-task-link" href="#"></a>
+            <a href="/">返回主页</a>
+        </div>
+    </div>
+
+    <video id="task-video-feed" class="hidden" autoplay playsinline></video>
+    <canvas id="canvas" class="hidden"></canvas>
+
+    <script>
+        let wizardStep, taskStep, feedbackStep, navStep, gestureDisplayText, pianoKeys, taskStatus, taskVideoFeed, canvas, context, nextTaskLink, startBaselineButton, startAdaptafaceButton, feedbackTitle, submitFeedbackButton;
+        let previewImageEl, croppedFaceImageEl, advFaceImageEl, perturbationImageEl;
+        let croppedFacePlaceholderEl, advFacePlaceholderEl, perturbationPlaceholderEl;
+        let taskAndPreviewLayout;
+
+        const MELODY = ['E4', 'E4', 'F4', 'G4', 'G4'];
+        const GESTURE_COOLDOWN = 700;
+        const RECOGNITION_INTERVAL = 300;
+
+        const AU_INFO = {
+            "AU1":{"name":"眉头上扬"},
+            "AU2":{"name":"眉头外扬"},
+            "AU4":{"name":"皱眉"},
+            "AU6":{"name":"脸颊提肌"},
+            "AU9":{"name":"皱鼻"},
+            "AU12":{"name":"微笑"},
+            "AU25":{"name":"嘴唇张开"},
+            "AU26":{"name":"下巴张开"}
+        };
+
+        let personalizedGesture = {}, cameraStream = null, isTaskRunning = false, recognitionInterval = null;
+        let currentNoteIndex, correctHits, totalAttempts, isAttackEnabled, startTime, lastNoteTime, noteTimings;
+        let lastGestureTime = 0, synth, isAudioReady = false;
+        let fingerprintMatchCount = 0, confidenceScores = [], confusionErrors = {};
+
+        function updatePreviewPanel(result) {
+            if (!result) return;
+
+            if (result.previewImage && previewImageEl) {
+                previewImageEl.src = result.previewImage;
+            }
+
+            if (result.croppedFaceImage) {
+                croppedFaceImageEl.src = result.croppedFaceImage;
+                croppedFaceImageEl.classList.remove('hidden');
+                croppedFacePlaceholderEl.classList.add('hidden');
+            } else {
+                croppedFaceImageEl.classList.add('hidden');
+                croppedFacePlaceholderEl.classList.remove('hidden');
+            }
+
+            if (result.adversarialFaceImage) {
+                advFaceImageEl.src = result.adversarialFaceImage;
+                advFaceImageEl.classList.remove('hidden');
+                advFacePlaceholderEl.classList.add('hidden');
+            } else {
+                advFaceImageEl.classList.add('hidden');
+                advFacePlaceholderEl.classList.remove('hidden');
+            }
+
+            if (result.perturbationImage) {
+                perturbationImageEl.src = result.perturbationImage;
+                perturbationImageEl.classList.remove('hidden');
+                perturbationPlaceholderEl.classList.add('hidden');
+            } else {
+                perturbationImageEl.classList.add('hidden');
+                perturbationPlaceholderEl.classList.remove('hidden');
+            }
+        }
+
+        function selectGesture(gestureInfo) {
+            personalizedGesture = gestureInfo;
+            gestureDisplayText.textContent = `${gestureInfo.name}`;
+            wizardStep.classList.add('hidden');
+            taskStep.classList.remove('hidden');
+            if (taskAndPreviewLayout) taskAndPreviewLayout.classList.remove('hidden');
+
+            startBaselineButton = document.getElementById('start-baseline-button');
+            startAdaptafaceButton = document.getElementById('start-adaptaface-button');
+            startBaselineButton.onclick = () => startTask(false);
+            startAdaptafaceButton.onclick = () => startTask(true);
+
+            if (cameraStream) {
+                taskVideoFeed.srcObject = cameraStream;
+            } else {
+                navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+                    cameraStream = stream;
+                    taskVideoFeed.srcObject = stream;
+                });
+            }
+
+            taskVideoFeed.classList.remove('hidden');
+        }
+
+        async function startTask(useAttack) {
+            if (isTaskRunning) return;
+
+            if (recognitionInterval) {
+                clearInterval(recognitionInterval);
+                recognitionInterval = null;
+            }
+
+            fingerprintMatchCount = 0;
+            confidenceScores = [];
+            confusionErrors = {};
+            currentNoteIndex = 0;
+            correctHits = 0;
+            totalAttempts = 0;
+
+            if (!isAudioReady) {
+                await Tone.start();
+                synth = new Tone.Synth().toDestination();
+                isAudioReady = true;
+            }
+
+            isTaskRunning = true;
+            isAttackEnabled = useAttack;
+            noteTimings = [0];
+            taskStatus.textContent = `任务开始！请使用动作触发点击。`;
+
+            const currentButton = useAttack ? startAdaptafaceButton : startBaselineButton;
+            const otherButton = useAttack ? startBaselineButton : startAdaptafaceButton;
+            otherButton.disabled = true;
+            currentButton.textContent = '停止测试';
+            currentButton.classList.add('btn-stop');
+            currentButton.onclick = () => stopTask();
+
+            (useAttack ? document.getElementById('adaptaface-results') : document.getElementById('baseline-results')).innerHTML = '';
+
+            startTime = Date.now();
+            lastNoteTime = startTime;
+            highlightNextKey();
+            recognitionInterval = setInterval(sendFrame, RECOGNITION_INTERVAL);
+        }
+
+        function stopTask() {
+            endTask(true);
+        }
+
+        function highlightNextKey() {
+            if (!isTaskRunning) return;
+            pianoKeys.forEach(key => key.classList.remove('highlight'));
+
+            if (currentNoteIndex < MELODY.length) {
+                const keyElement = document.querySelector(`.key[data-note="${MELODY[currentNoteIndex]}"]`);
+                if (keyElement) keyElement.classList.add('highlight');
+            }
+        }
+
+        function processHit() {
+            if (!isTaskRunning) return;
+
+            totalAttempts++;
+            const correctNote = MELODY[currentNoteIndex];
+            correctHits++;
+
+            const now = Date.now();
+            noteTimings.push((now - lastNoteTime) / 1000);
+            lastNoteTime = now;
+
+            const correctKey = document.querySelector(`.key[data-note="${correctNote}"]`);
+
+            if (isAudioReady) synth.triggerAttackRelease(correctNote, "8n");
+
+            if (correctKey) correctKey.classList.add('pressed-correct');
+            setTimeout(() => {
+                if (correctKey) correctKey.classList.remove('pressed-correct');
+            }, 200);
+
+            currentNoteIndex++;
+
+            if (currentNoteIndex >= MELODY.length) {
+                endTask(false);
+            } else {
+                setTimeout(highlightNextKey, 100);
+            }
+        }
+
+        function endTask(stoppedManually = false) {
+            if (!isTaskRunning) return;
+
+            isTaskRunning = false;
+
+            if (recognitionInterval) {
+                clearInterval(recognitionInterval);
+                recognitionInterval = null;
+            }
+
+            pianoKeys.forEach(key => key.classList.remove('highlight'));
+            taskStatus.textContent = stoppedManually ? '测试已手动停止。' : '任务完成！';
+
+            const totalTime = ((Date.now() - startTime) / 1000).toFixed(2);
+            const completionRate = (MELODY.length > 0 ? (correctHits / MELODY.length) * 100 : 0).toFixed(1);
+            const avgTime = (noteTimings.length > 1 ? (noteTimings.slice(1).reduce((a, b) => a + b, 0) / (noteTimings.length - 1)) : 0).toFixed(2);
+            const accuracy = (totalAttempts > 0 ? (correctHits / totalAttempts) * 100 : 0).toFixed(1);
+            const avgConfidence = (confidenceScores.length > 0)
+                ? (confidenceScores.reduce((a, b) => a + b, 0) / confidenceScores.length)
+                : 0;
+            const stdDevConfidence = (confidenceScores.length > 1)
+                ? Math.sqrt(confidenceScores.map(x => Math.pow(x - avgConfidence, 2)).reduce((a, b) => a + b, 0) / (confidenceScores.length - 1))
+                : 0;
+
+            const results = {
+                '总时间(秒)': totalTime,
+                '准确率(%)': accuracy,
+                '总尝试(次)': totalAttempts,
+                '平均耗时(秒)': avgTime,
+                '完成率(%)': completionRate,
+                '平均置信度': avgConfidence.toFixed(4),
+                '置信度标准差': stdDevConfidence.toFixed(4),
+                '混淆错误': confusionErrors
+            };
+
+            if (personalizedGesture.mode === 'au_vector') {
+                results['指纹配对成功次数'] = fingerprintMatchCount;
+            }
+
+            fetch('/log_results', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    taskName: '虚拟钢琴',
+                    mode: new URLSearchParams(window.location.search).get('mode'),
+                    gestureName: personalizedGesture.name,
+                    condition: isAttackEnabled ? '模型二' : '模型一',
+                    results: results
+                })
+            }).catch(error => console.error('结果日志记录失败:', error));
+
+            const currentButton = isAttackEnabled ? startAdaptafaceButton : startBaselineButton;
+            currentButton.textContent = '测试已完成';
+            currentButton.disabled = true;
+            currentButton.classList.remove('btn-stop');
+            currentButton.onclick = null;
+
+            showFeedbackForm();
+        }
+
+        function showFeedbackForm() {
+            const conditionName = isAttackEnabled ? '模型二' : '模型一';
+            feedbackTitle.textContent = `请对刚才 “${conditionName}” 的体验评分`;
+            taskStep.classList.add('hidden');
+            if (taskAndPreviewLayout) taskAndPreviewLayout.classList.add('hidden');
+            feedbackStep.classList.remove('hidden');
+            document.querySelector('input[name="ease"][value="3"]').checked = true;
+            document.querySelector('input[name="accuracy"][value="3"]').checked = true;
+        }
+
+        function submitFeedback() {
+            const easeRating = document.querySelector('input[name="ease"]:checked').value;
+            const accuracyRating = document.querySelector('input[name="accuracy"]:checked').value;
+            const feedbackData = {
+                '使用轻松度': parseInt(easeRating),
+                '控制精准度': parseInt(accuracyRating)
+            };
+
+            fetch('/log_feedback', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    taskName: '虚拟钢琴',
+                    mode: new URLSearchParams(window.location.search).get('mode'),
+                    gestureName: personalizedGesture.name,
+                    condition: isAttackEnabled ? 'AdaptaFace' : '基线',
+                    feedback: feedbackData
+                })
+            }).catch(error => console.error('反馈日志记录失败:', error));
+
+            continueToNextStep();
+        }
+
+        function continueToNextStep() {
+            feedbackStep.classList.add('hidden');
+            const otherButton = isAttackEnabled ? startBaselineButton : startAdaptafaceButton;
+
+            if (otherButton && otherButton.textContent !== '测试已完成') {
+                otherButton.disabled = false;
+                otherButton.textContent = `开始${!isAttackEnabled ? '模型二' : '模型一'}测试`;
+                taskStep.classList.remove('hidden');
+                if (taskAndPreviewLayout) taskAndPreviewLayout.classList.remove('hidden');
+            } else {
+                taskStep.classList.add('hidden');
+                if (taskAndPreviewLayout) taskAndPreviewLayout.classList.add('hidden');
+                navStep.classList.remove('hidden');
+            }
+        }
+
+        async function sendFrame() {
+            if (!isTaskRunning) return;
+            if (!taskVideoFeed.srcObject || taskVideoFeed.readyState < 2) return;
+
+            if (canvas.width !== taskVideoFeed.videoWidth) {
+                canvas.width = taskVideoFeed.videoWidth;
+                canvas.height = taskVideoFeed.videoHeight;
+            }
+
+            context.drawImage(taskVideoFeed, 0, 0, canvas.width, canvas.height);
+            const imageDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+
+            try {
+                const response = await fetch('/process_frame', {
+                    method: 'POST',
+                    cache: 'no-cache',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        image: imageDataUrl,
+                        attackEnabled: isAttackEnabled,
+                        ...personalizedGesture
+                    })
+                });
+
+                if (!isTaskRunning) return;
+                const result = await response.json();
+
+                updatePreviewPanel(result);
+
+                if (result.fingerprintMatch) {
+                    fingerprintMatchCount++;
+                }
+
+                const targetGesture = personalizedGesture.au || personalizedGesture.target_au;
+
+                if (result.status === 'success' && result.gesture === targetGesture) {
+                    const now = Date.now();
+                    if (now - lastGestureTime > GESTURE_COOLDOWN) {
+                        lastGestureTime = now;
+                        const score = result.confidences[targetGesture];
+                        if (score) {
+                            confidenceScores.push(score);
+                        }
+                        processHit();
+                    }
+                } else if (result.status === 'success' && result.gesture !== 'None' && result.gesture !== 'NoFace') {
+                    const misidentifiedGesture = result.gesture;
+                    confusionErrors[misidentifiedGesture] = (confusionErrors[misidentifiedGesture] || 0) + 1;
+                }
+            } catch (error) {
+                if (isTaskRunning) {
+                    console.error('发送失败:', error);
+                }
+            }
+        }
+
+        async function startRecordingProcess(gestureInfo, isCustomSmart=false) {
+            const webcam = document.getElementById('webcam');
+            const wizardStatus = document.getElementById('wizard-status');
+            const recordButton = document.getElementById('record-button');
+
+            if (recordButton) recordButton.disabled = true;
+
+            if (!webcam.srcObject || webcam.videoWidth === 0) {
+                wizardStatus.textContent = "正在准备...";
+                await new Promise(r => setTimeout(r, 1000));
+                if (!webcam.srcObject || webcam.videoWidth === 0) {
+                    wizardStatus.textContent = "错误：无法获取摄像头画面尺寸，请刷新重试。";
+                    if (recordButton) recordButton.disabled = false;
+                    return;
+                }
+            }
+
+            canvas.width = webcam.videoWidth;
+            canvas.height = webcam.videoHeight;
+            wizardStatus.textContent = '请准备做动作';
+            await new Promise(r => setTimeout(r, 1500));
+
+            wizardStatus.classList.add('countdown-active');
+            for (let i = 3; i > 0; i--) {
+                wizardStatus.textContent = i;
+                await new Promise(r => setTimeout(r, 1000));
+            }
+            wizardStatus.classList.remove('countdown-active');
+
+            wizardStatus.textContent = '正在拍摄您的动作...';
+            const frames = [];
+            for (let i = 0; i < 5; i++) {
+                context.drawImage(webcam, 0, 0, canvas.width, canvas.height);
+                frames.push(canvas.toDataURL('image/jpeg', 0.7));
+                await new Promise(r => setTimeout(r, 100));
+            }
+
+            wizardStatus.textContent = '✅ 已捕捉动作！';
+
+            if (isCustomSmart) {
+                sendForAnalysisAndTemplateCreation(gestureInfo, frames);
+            } else {
+                sendAuVectorTemplateToBackend(gestureInfo, frames);
+            }
+        }
+
+        async function sendForAnalysisAndTemplateCreation(gestureInfo, gesture_frames) {
+            const wizardStatus = document.getElementById('wizard-status');
+            const recordButton = document.getElementById('record-button');
+
+            try {
+                const response = await fetch('/analyze_and_create_template', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ gesture_frames })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    wizardStatus.textContent = `模板创建成功！系统已为您自动匹配最相似的目标：“${result.determined_au_name}”。`;
+                    const customName = prompt("太棒了！请为您的新动作命名:", "我的点击动作");
+                    let finalGestureInfo = {
+                        mode: 'au_vector',
+                        name: customName || "自定义动作",
+                        target_au: result.determined_au
+                    };
+                    setTimeout(() => selectGesture(finalGestureInfo), 1500);
+                } else {
+                    wizardStatus.textContent = `创建失败: ${result.message}`;
+                    if (recordButton) recordButton.disabled = false;
+                }
+            } catch (error) {
+                wizardStatus.textContent = '创建模板时连接后台失败。';
+                if (recordButton) recordButton.disabled = false;
+            }
+        }
+
+        async function sendAuVectorTemplateToBackend(gestureInfo, gesture_frames) {
+            const wizardStatus = document.getElementById('wizard-status');
+            const recordButton = document.getElementById('record-button');
+            const target_au = gestureInfo.au || gestureInfo.target_au;
+
+            try {
+                const response = await fetch('/create_au_vector_template', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ target_au, gesture_frames })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    wizardStatus.textContent = '模板创建成功！准备开始任务...';
+                    let finalGestureInfo;
+
+                    if (gestureInfo.mode === 'au') {
+                        finalGestureInfo = { ...gestureInfo, mode: 'au_vector', target_au: target_au };
+                    } else {
+                        const customName = prompt("太棒了！请为您的新动作命名:", "我的点击动作");
+                        finalGestureInfo = {
+                            ...gestureInfo,
+                            name: customName || "自定义动作",
+                            mode: 'au_vector',
+                            target_au: target_au
+                        };
+                    }
+
+                    setTimeout(() => selectGesture(finalGestureInfo), 1000);
+                } else {
+                    wizardStatus.textContent = `创建失败: ${result.message}`;
+                    if (recordButton) recordButton.disabled = false;
+                }
+            } catch (error) {
+                wizardStatus.textContent = '创建模板时连接后台失败。';
+                if (recordButton) recordButton.disabled = false;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            wizardStep = document.getElementById('wizard-step');
+            taskStep = document.getElementById('task-step');
+            feedbackStep = document.getElementById('feedback-step');
+            navStep = document.getElementById('nav-step');
+            taskAndPreviewLayout = document.getElementById('task-and-preview-layout');
+
+            gestureDisplayText = document.getElementById('gesture-display-text');
+            pianoKeys = document.querySelectorAll('.key');
+            taskStatus = document.getElementById('task-status');
+            taskVideoFeed = document.getElementById('task-video-feed');
+            canvas = document.getElementById('canvas');
+            context = canvas.getContext('2d');
+            nextTaskLink = document.getElementById('next-task-link');
+            feedbackTitle = document.getElementById('feedback-title');
+            submitFeedbackButton = document.getElementById('submit-feedback-button');
+            submitFeedbackButton.onclick = submitFeedback;
+
+            previewImageEl = document.getElementById('preview-image');
+            croppedFaceImageEl = document.getElementById('cropped-face-image');
+            advFaceImageEl = document.getElementById('adv-face-image');
+            perturbationImageEl = document.getElementById('perturbation-image');
+            croppedFacePlaceholderEl = document.getElementById('cropped-face-placeholder');
+            advFacePlaceholderEl = document.getElementById('adv-face-placeholder');
+            perturbationPlaceholderEl = document.getElementById('perturbation-placeholder');
+
+            wizardStep.innerHTML = `<div id="wizard-content"></div><p id="wizard-status"></p><video id="webcam" autoplay playsinline class="hidden"></video>`;
+
+            const wizardContent = document.getElementById('wizard-content');
+            const webcam = document.getElementById('webcam');
+            const wizardStatus = document.getElementById('wizard-status');
+            const params = new URLSearchParams(window.location.search);
+            const mode = params.get('mode') || 'fixed';
+
+            if (mode === 'fixed') {
+                nextTaskLink.href = '/piano?mode=selectable';
+                nextTaskLink.textContent = '下一个模式 (选择)';
+            } else if (mode === 'selectable') {
+                nextTaskLink.href = '/piano?mode=custom_fixed';
+                nextTaskLink.textContent = '下一个模式 (自定义-固定)';
+            } else if (mode === 'custom_fixed') {
+                nextTaskLink.href = '/piano?mode=custom_smart';
+                nextTaskLink.textContent = '下一个模式 (自定义-智能)';
+            } else {
+                nextTaskLink.href = '/';
+                nextTaskLink.textContent = '完成评估';
+            }
+
+            try {
+                cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                webcam.srcObject = cameraStream;
+                webcam.classList.remove('hidden');
+                wizardStatus.textContent = '摄像头已就绪。';
+            } catch (err) {
+                wizardStatus.textContent = '错误：无法访问摄像头，请检查浏览器权限并刷新页面。';
+                alert(`无法启动摄像头，请检查权限或浏览器设置。\n\n错误详情: ${err.name}\n${err.message}`);
+                return;
+            }
+
+            if (mode === 'fixed') {
+                const gestureInfo = { mode: 'au', au: 'AU25', name: '嘴唇张开' };
+                wizardContent.innerHTML = `<h2>第一步：录制您的个人动作</h2><p>为了精确识别，请做出预设的 <strong>${gestureInfo.name}</strong> 动作，并点击下方按钮进行录制。<strong>（录制期间请保持该动作）</strong></p><button id="record-button" type="button">录制“${gestureInfo.name}”</button>`;
+                document.getElementById('record-button').onclick = () => startRecordingProcess(gestureInfo, false);
+            } else if (mode === 'selectable') {
+                wizardContent.innerHTML = `<h2>第一步：选择并录制您的动作</h2><p>请选择一个您想要用来点击的动作，然后根据提示完成录制。<strong>（录制期间请保持该动作）</strong></p><div id="au-buttons-container" class="au-buttons-container"></div>`;
+                const container = document.getElementById('au-buttons-container');
+
+                Object.keys(AU_INFO).forEach(au => {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    const gestureInfo = { mode: 'au', au: au, name: AU_INFO[au].name };
+                    button.textContent = AU_INFO[au].name;
+                    button.className = 'au-button';
+                    button.onclick = () => {
+                        wizardContent.innerHTML = `<h2>现在，请录制您的“${gestureInfo.name}”动作</h2><p>请正对摄像头，做出您刚才选择的动作，然后点击下方按钮录制。<strong>（录制期间请保持该动作）</strong></p><button id="record-button" type="button">开始录制</button>`;
+                        document.getElementById('record-button').onclick = () => startRecordingProcess(gestureInfo, false);
+                    };
+                    container.appendChild(button);
+                });
+            } else if (mode === 'custom_fixed') {
+                wizardContent.innerHTML = `<h2>录制自定义动作 (固定目标)</h2><p style="text-align: left;">请创造一个您认为最合适且舒适的动作来触发“点击”指令，并将它录制下来。<strong>（录制期间请保持该动作）</strong></p><button id="record-button" type="button">录制我的独特动作</button>`;
+                document.getElementById('record-button').onclick = () => {
+                    const gestureInfo = { mode: 'custom_fixed', target_au: 'AU25' };
+                    startRecordingProcess(gestureInfo, false);
+                };
+            } else if (mode === 'custom_smart') {
+                wizardContent.innerHTML = `<h2>录制自定义动作 (智能匹配目标)</h2><p style="text-align: left;">请创造一个您认为最合适且舒适的动作来触发“点击”指令。系统会自动为您匹配最佳的辅助目标以提高成功率。<strong>（录制期间请保持该动作）</strong></p><button id="record-button" type="button">录制我的独特动作</button>`;
+                document.getElementById('record-button').onclick = () => {
+                    const gestureInfo = { mode: 'custom_smart' };
+                    startRecordingProcess(gestureInfo, true);
+                };
+            }
+        });
+    </script>
+</body>
+</html>
