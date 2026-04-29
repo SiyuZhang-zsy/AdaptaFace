@@ -2,7 +2,7 @@
 
 AdaptaFace is a research prototype for input-level adversarial assistance in facial-gesture interaction. It inserts a compatibility layer between a user's facial input and an existing facial-action recognizer, allowing user-compatible gestures to be translated into recognizer-compatible inputs without retraining the downstream model.
 
-The current release support using OpenFace 3.0 and OpenGraphAU-compatible models as external facial-analysis backends. These models are used to generate and evaluate input-level perturbations. 后续将支持更多模型。
+The current release support using OpenFace 3.0 and OpenGraphAU-compatible models as external facial-analysis backends. These models are used to generate and evaluate input-level perturbations. AdaptaFace will support more models in future.
 
 
 ---
@@ -708,19 +708,3 @@ OpenFace 3.0, OpenGraphAU, their source code, and their model weights are extern
 
 Please check the upstream licenses before using or redistributing any third-party components.
 
----
-
-## Citation
-
-If you use this code, please cite the corresponding paper:
-
-```bibtex
-@inproceedings{adaptaface2026,
-  title     = {AdaptaFace: Adversarial Assistance for Inclusive Facial Gesture Interaction},
-  author    = {Anonymous Author(s)},
-  booktitle = {Proceedings of UIST},
-  year      = {2026}
-}
-```
-
-Please update this entry with the final author list, DOI, and publication metadata after publication.
