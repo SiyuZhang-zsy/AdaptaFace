@@ -10,6 +10,16 @@ The current release support using OpenFace 3.0 and OpenGraphAU-compatible models
 https://github.com/user-attachments/assets/5b073703-70c3-40b1-89f7-6d75424018b9
 
 ---
+## Function 1 —— Enhances Gesture Recognition
+
+https://github.com/user-attachments/assets/229a1d1e-0052-4674-b701-0afbdc0538d8
+
+---
+## Function 2 —— Vocabulary Extension
+
+https://github.com/user-attachments/assets/a4e1be16-fb3a-495e-a7e0-05e60f0e8a06
+
+---
 
 ## Overview
 
