@@ -55,7 +55,7 @@ AdaptaFace/
   .gitignore                        # Files and folders excluded from version control
 
   app.py                            # Main Flask application for running the browser-based AdaptaFace demo
-  pgd_assistance.py                 # PGD-style targeted adversarial assistance implementation
+  pgd.py                 # PGD-style targeted adversarial assistance implementation
   realtime_assistance_visualizer.py # Real-time webcam/video visualization of original input, assisted input, and perturbation map
 
   templates/
