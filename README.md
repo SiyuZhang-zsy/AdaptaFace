@@ -6,7 +6,7 @@ The current release support using OpenFace 3.0 and OpenGraphAU-compatible models
 ---
 ## Intro
 
-[AdaptaFace.pdf](https://github.com/user-attachments/files/27253581/fig11.1.pdf)
+<img width="1023" height="575" alt="AdaptaFace" src="https://github.com/user-attachments/assets/53873317-054e-4243-8e01-0e6a8751f74e" />
 
 ---
 ## Video —— Intro
