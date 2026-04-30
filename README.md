@@ -73,6 +73,7 @@ AdaptaFace/
   eval_model_transfer_opengraphau_to_openface.py # Model-transfer validation from OpenGraphAU-generated assistance to OpenFace evaluation
   export_visual_examples.py                     # Export selected examples for figures: original image, assisted image, perturbation map, and confidence values
 
+---
 
 ## External model backends
 
