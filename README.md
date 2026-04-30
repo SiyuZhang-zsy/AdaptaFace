@@ -44,45 +44,35 @@ This repository includes:
 
 ---
 
+
 ## Repository structure
 
-The current repository is expected to be organized as follows:
-
+The current repository is organized as follows:
 
 ```text
 AdaptaFace/
-  README.md
-  .gitignore
+  README.md                         # Project overview, setup instructions, demo usage, and reproduction guide
+  .gitignore                        # Files and folders excluded from version control
 
-  app.py
-  pgd.py
-  realtime_attack_visualizer.py
+  app.py                            # Main Flask application for running the browser-based AdaptaFace demo
+  pgd_assistance.py                 # PGD-style targeted adversarial assistance implementation
+  realtime_assistance_visualizer.py # Real-time webcam/video visualization of original input, assisted input, and perturbation map
 
   templates/
-    index.html
-    settings.html
-    gallery.html
-    piano.html
-    zoom.html
+    index.html                      # Main landing page of the web interface
+    assistance_settings.html        # Interface for adjusting assistance parameters
+    swipe_gallery_task.html         # Swipe/gallery task interface
+    click_piano_task.html           # Click/selection task interface based on a virtual piano
+    zoom_task.html                  # Zoom-in and zoom-out task interface
 
   weights/
-    README.md
+    README.md                       # Instructions for obtaining and placing external model weights
 
-  eval_affwild2_demo_state_split_v2.py
-  eval_opengraphau_self_attack_fixed.py
-  eval_cross_model_opengraphau_to_openface.py
-  export_selected_cases_epsnorm.py
-```
+  eval_cross_dataset_affwild2_openface.py       # Cross-dataset validation using Aff-Wild2-style AU data and OpenFace
+  eval_cross_model_opengraphau.py               # Cross-model validation using OpenGraphAU as the assistance/evaluation recognizer
+  eval_model_transfer_opengraphau_to_openface.py # Model-transfer validation from OpenGraphAU-generated assistance to OpenFace evaluation
+  export_visual_examples.py                     # Export selected examples for figures: original image, assisted image, perturbation map, and confidence values
 
-Suggested local-only folders:
-
-```text
-data/          # External datasets, not committed
-outputs/       # Generated outputs, not committed
-weights/       # Local external model weights, not committed except README.md
-```
-
----
 
 ## External model backends
 
