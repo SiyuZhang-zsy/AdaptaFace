@@ -304,7 +304,7 @@ The standalone visualizer processes either a video file or a screen capture. It 
 ### Video input
 
 ```bash
-python realtime_attack_visualizer.py \
+python realtime_assistance_visualizer.py \
   --source video \
   --video_path ./demo/input.mp4 \
   --target_au AU12 \
@@ -316,7 +316,7 @@ python realtime_attack_visualizer.py \
 ### Screen input
 
 ```bash
-python realtime_attack_visualizer.py \
+python realtime_assistance_visualizer.py \
   --source screen \
   --target_au AU12 \
   --monitor 1 \
@@ -387,7 +387,7 @@ AU1, AU2, AU4, AU6, AU12, AU25, AU26
 This evaluates OpenFace-generated perturbations on Aff-Wild2 using the OpenFace evaluator.
 
 ```bash
-python eval_affwild2_demo_state_split_v2.py \
+python eval_cross_dataset_affwild2_openface.py \
   --data_root ./data/AffWild2 \
   --model_path ./weights/MTL_backbone.pth \
   --out_dir ./outputs/cross_dataset_openface \
@@ -423,7 +423,7 @@ outputs/cross_dataset_openface/
 This evaluates the same assistance logic using OpenGraphAU as both the perturbation generator and evaluator.
 
 ```bash
-python eval_opengraphau_self_attack_fixed.py \
+python eval_cross_model_opengraphau.py \
   --data_root ./data/AffWild2 \
   --out_dir ./outputs/cross_model_opengraphau \
   --source_au all \
@@ -467,7 +467,7 @@ outputs/cross_model_opengraphau/
 This setting generates perturbations with OpenGraphAU and evaluates the assisted images using OpenFace.
 
 ```bash
-python eval_cross_model_opengraphau_to_openface.py \
+python eval_model_transfer_opengraphau_to_openface.py \
   --data_root ./data/AffWild2 \
   --model_path ./weights/MTL_backbone.pth \
   --out_dir ./outputs/model_transfer_opengraphau_to_openface \
