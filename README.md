@@ -4,6 +4,15 @@ AdaptaFace is a research prototype for input-level adversarial assistance in fac
 
 The current release support using OpenFace 3.0 and OpenGraphAU-compatible models as external facial-analysis backends. These models are used to generate and evaluate input-level perturbations. AdaptaFace will support more models in future.
 
+---
+## Video
+
+
+https://github.com/user-attachments/assets/be2f6bcd-363d-4e16-b313-3e4c5f085f19
+
+
+
+
 
 ---
 
